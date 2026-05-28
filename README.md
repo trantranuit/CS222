@@ -241,16 +241,6 @@ Xuất khẩu cũng đạt mức cao với 355 tỷ USD[2].
 | Max Seq Length | 4096 |
 | GPU | A100 40GB (~6-10 giờ) |
 
-**Pipeline xây dựng dữ liệu** (paper gốc mô tả):
-
-```
-Data Collection → Faithful Filtering → Citation Construction → Refusal Construction → Augmentation
-```
-
-- **Faithful Filtering**: Loại bỏ mẫu có ROUGE-1 < ngưỡng (hallucination) + lọc entity không tồn tại trong document
-- **Citation Construction**: Dùng ChatGPT gắn citation cho từng câu trong answer (Algorithm 1 trong paper)
-- **Refusal Construction**: Lấy 10% QA data, thay chunks gốc bằng chunks không liên quan → ChatGPT sinh câu từ chối
-
 **Chạy**:
 ```bash
 modal run _modal_finetune_generator.py
