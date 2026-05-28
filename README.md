@@ -48,7 +48,33 @@ Câu trả lời TruthReader: "GDP tăng 6.5% trong năm 2023 [2]."
 
 ---
 
-## 2. Cách hệ thống hoạt động
+## 2. Mục tiêu Đồ án
+
+> **Câu hỏi nghiên cứu**: *Liệu pipeline huấn luyện của TruthReader có duy trì hiệu suất khi thay đổi dữ liệu huấn luyện?*
+
+Chúng tôi tái lập toàn bộ pipeline gốc, sau đó thay thế dữ liệu huấn luyện Retriever (từ RefGPT → CORAL) để kiểm tra tính tổng quát hóa.
+
+| Giai đoạn | Công việc | Output |
+| :---: | :--- | :--- |
+| 1 | Tái lập pipeline huấn luyện (Retriever + Generator) | Model fine-tuned giống tác giả |
+| 2 | Thay dataset Retriever: RefGPT → CORAL | Model retriever mới |
+| 3 | Đánh giá so sánh 2 retriever + generator | Bảng kết quả + phân tích |
+
+### Thành viên nhóm
+
+| STT | Họ và Tên | MSSV |
+| :---: | :--- | :---: |
+| 1 | Phạm Thị Ngọc Bích | 23520148 |
+| 2 | Trần Kỷ Diệu | 23520290 |
+| 3 | Trịnh Trân Trân | 23521624 |
+
+**Môn học**: CS222.Q22 — GV: TS. Nguyễn Thị Quý
+
+> 📄 **Paper gốc**: [TruthReader: Towards Trustworthy Document Assistant Chatbot with Reliable Attribution](https://aclanthology.org/2024.emnlp-demo.10.pdf) (EMNLP 2024 Demo)
+
+---
+
+## 3. Kiến trúc Hệ thống (Model Pipeline)
 
 ![truthreader_architecture](fig/truthreader_architecture.png)
 
@@ -78,57 +104,36 @@ Hệ thống gồm 3 bước xử lý theo pipeline:
 
 ---
 
-## 3. Quick Start — Chạy Demo
+## 4. Danh sách Model & Dataset
 
-> **Cách nhanh nhất**: Mở notebook trên Colab/Kaggle, chạy từ trên xuống dưới.
+### Models
 
-### Bước 1: Mở notebook
+| Model | Vai trò | Kích thước | Link |
+| :--- | :--- | :---: | :--- |
+| HIT-TMG/bge-m3_RAG-conversational-IR | Retriever (tác giả gốc) | 2.4 GB | [HuggingFace](https://huggingface.co/HIT-TMG/bge-m3_RAG-conversational-IR) |
+| HIT-TMG/Qwen1.5-14B-Chat_RAG-Reader | Generator (tác giả gốc) | 28 GB | [HuggingFace](https://huggingface.co/HIT-TMG/Qwen1.5-14B-Chat_RAG-Reader) |
+| trinhtrantran122/bge-m3-truthreader-retriever | Retriever (tái lập) | 2.4 GB | [HuggingFace](https://huggingface.co/trinhtrantran122/bge-m3-truthreader-retriever) |
+| trinhtrantran122/bge-m3-coral-retriever | Retriever (CORAL) | 2.4 GB | [HuggingFace](https://huggingface.co/trinhtrantran122/bge-m3-coral-retriever) |
+| trinhtrantran122/Mixtral_13B_Chat_RAG-Reader | Generator (tái lập) | 26 GB | [HuggingFace](https://huggingface.co/trinhtrantran122/Mixtral_13B_Chat_RAG-Reader) |
+| pszemraj/nougat-small-onnx | OCR cho PDF | 1 GB | [HuggingFace](https://huggingface.co/pszemraj/nougat-small-onnx) |
 
-Mở [`TruthReader_demo.ipynb`](TruthReader_demo.ipynb) trên:
-- **Google Colab Pro** — chọn GPU A100 hoặc L4
-- **Kaggle** — Settings → Accelerator → GPU T4 x2
+### Datasets
 
-### Bước 2: Chạy tuần tự
+| Dataset | Dùng cho | Mô tả | Link |
+| :--- | :--- | :--- | :--- |
+| HIT-TMG/TruthReader_RAG_train | Generator | ~7,000 mẫu (RefGPT + WebCPM + QA) | [HuggingFace](https://huggingface.co/datasets/HIT-TMG/TruthReader_RAG_train) |
+| ariya2357/CORAL | Retriever (mở rộng) | 7,200 conversations, ~59K turns | [HuggingFace](https://huggingface.co/datasets/ariya2357/CORAL) |
+| trinhtrantran122/TruthReader-Table2-TestData | Evaluation | 50+ test queries | [HuggingFace](https://huggingface.co/datasets/trinhtrantran122/TruthReader-Table2-TestData) |
 
-| Step | Làm gì | Thời gian |
-| :---: | :--- | :--- |
-| 0 | Kiểm tra GPU (cần VRAM ≥ 16 GB) | 5 giây |
-| 1 | Clone repo + cài thư viện | 3–5 phút |
-| ⚠️ | **Restart Runtime** (bắt buộc) | — |
-| 1b | Verify packages sau restart | 10 giây |
-| 2 | Tải 3 models (~32 GB) | 10–20 phút |
-| 3 | Khởi động vLLM server | 1–2 phút |
-| 4 | Launch Gradio UI | 30 giây |
+### Chi tiết dữ liệu Generator (7,000 mẫu)
 
-### Bước 3: Chat
-
-Khi thấy link `https://xxxxx.gradio.live` → click vào → upload tài liệu → đặt câu hỏi.
-
----
-
-## 4. Mục tiêu Đồ án
-
-> **Câu hỏi nghiên cứu**: *Liệu pipeline huấn luyện của TruthReader có duy trì hiệu suất khi thay đổi dữ liệu huấn luyện?*
-
-Chúng tôi tái lập toàn bộ pipeline gốc, sau đó thay thế dữ liệu huấn luyện Retriever (từ RefGPT → CORAL) để kiểm tra tính tổng quát hóa.
-
-| Giai đoạn | Công việc | Output |
-| :---: | :--- | :--- |
-| 1 | Tái lập pipeline huấn luyện (Retriever + Generator) | Model fine-tuned giống tác giả |
-| 2 | Thay dataset Retriever: RefGPT → CORAL | Model retriever mới |
-| 3 | Đánh giá so sánh 2 retriever + generator | Bảng kết quả + phân tích |
-
-### Thành viên nhóm
-
-| STT | Họ và Tên | MSSV |
-| :---: | :--- | :---: |
-| 1 | Phạm Thị Ngọc Bích | 23520148 |
-| 2 | Trần Kỷ Diệu | 23520290 |
-| 3 | Trịnh Trân Trân | 23521624 |
-
-**Môn học**: CS222.Q22 — GV: TS. Nguyễn Thị Quý
-
-> 📄 **Paper gốc**: [TruthReader: Towards Trustworthy Document Assistant Chatbot with Reliable Attribution](https://aclanthology.org/2024.emnlp-demo.10.pdf) (EMNLP 2024 Demo)
+| Loại | Ngôn ngữ | Số mẫu | Nguồn | Ví dụ task |
+| :--- | :---: | :---: | :--- | :--- |
+| RefGPT | zh/en | 3,708 | Wikipedia, Baidu Baike | QA đa lượt |
+| WebCPM | zh | 897 | Web | QA dài, con người trả lời |
+| QA Created | zh | 1,482 | Đa lĩnh vực | QA do ChatGPT sinh |
+| Multi-doc Synthesis | zh | 387 | WeiXin Articles | Tổng hợp nhiều bài |
+| Single-doc Summary | zh/en | 561 | Wikipedia, WeiXin | Tóm tắt 1 bài |
 
 ---
 
@@ -331,40 +336,90 @@ Mở `Reproduce/Eval.ipynb` → chạy tuần tự từ trên xuống.
 
 ---
 
-## 7. Danh sách Model & Dataset
+## 7. Quick Start — Chạy Demo (Web App)
 
-### Models
+> **Cách nhanh nhất**: Mở notebook trên Colab/Kaggle, chạy từ trên xuống dưới.
 
-| Model | Vai trò | Kích thước | Link |
-| :--- | :--- | :---: | :--- |
-| HIT-TMG/bge-m3_RAG-conversational-IR | Retriever (tác giả gốc) | 2.4 GB | [HuggingFace](https://huggingface.co/HIT-TMG/bge-m3_RAG-conversational-IR) |
-| HIT-TMG/Qwen1.5-14B-Chat_RAG-Reader | Generator (tác giả gốc) | 28 GB | [HuggingFace](https://huggingface.co/HIT-TMG/Qwen1.5-14B-Chat_RAG-Reader) |
-| trinhtrantran122/bge-m3-truthreader-retriever | Retriever (tái lập) | 2.4 GB | [HuggingFace](https://huggingface.co/trinhtrantran122/bge-m3-truthreader-retriever) |
-| trinhtrantran122/bge-m3-coral-retriever | Retriever (CORAL) | 2.4 GB | [HuggingFace](https://huggingface.co/trinhtrantran122/bge-m3-coral-retriever) |
-| trinhtrantran122/Mixtral_13B_Chat_RAG-Reader | Generator (tái lập) | 26 GB | [HuggingFace](https://huggingface.co/trinhtrantran122/Mixtral_13B_Chat_RAG-Reader) |
-| pszemraj/nougat-small-onnx | OCR cho PDF | 1 GB | [HuggingFace](https://huggingface.co/pszemraj/nougat-small-onnx) |
+### Bước 1: Mở notebook
 
-### Datasets
+Mở [`TruthReader_demo.ipynb`](TruthReader_demo.ipynb) trên:
+- **Google Colab Pro** — chọn GPU A100 hoặc L4
+- **Kaggle** — Settings → Accelerator → GPU T4 x2
 
-| Dataset | Dùng cho | Mô tả | Link |
-| :--- | :--- | :--- | :--- |
-| HIT-TMG/TruthReader_RAG_train | Generator | ~7,000 mẫu (RefGPT + WebCPM + QA) | [HuggingFace](https://huggingface.co/datasets/HIT-TMG/TruthReader_RAG_train) |
-| ariya2357/CORAL | Retriever (mở rộng) | 7,200 conversations, ~59K turns | [HuggingFace](https://huggingface.co/datasets/ariya2357/CORAL) |
-| trinhtrantran122/TruthReader-Table2-TestData | Evaluation | 50+ test queries | [HuggingFace](https://huggingface.co/datasets/trinhtrantran122/TruthReader-Table2-TestData) |
+### Bước 2: Chạy tuần tự
 
-### Chi tiết dữ liệu Generator (7,000 mẫu)
+| Step | Làm gì | Thời gian |
+| :---: | :--- | :--- |
+| 0 | Kiểm tra GPU (cần VRAM ≥ 16 GB) | 5 giây |
+| 1 | Clone repo + cài thư viện | 3–5 phút |
+| ⚠️ | **Restart Runtime** (bắt buộc) | — |
+| 1b | Verify packages sau restart | 10 giây |
+| 2 | Tải 3 models (~32 GB) | 10–20 phút |
+| 3 | Khởi động vLLM server | 1–2 phút |
+| 4 | Launch Gradio UI | 30 giây |
 
-| Loại | Ngôn ngữ | Số mẫu | Nguồn | Ví dụ task |
-| :--- | :---: | :---: | :--- | :--- |
-| RefGPT | zh/en | 3,708 | Wikipedia, Baidu Baike | QA đa lượt |
-| WebCPM | zh | 897 | Web | QA dài, con người trả lời |
-| QA Created | zh | 1,482 | Đa lĩnh vực | QA do ChatGPT sinh |
-| Multi-doc Synthesis | zh | 387 | WeiXin Articles | Tổng hợp nhiều bài |
-| Single-doc Summary | zh/en | 561 | Wikipedia, WeiXin | Tóm tắt 1 bài |
+### Bước 3: Chat
+
+Khi thấy link `https://xxxxx.gradio.live` → click vào → upload tài liệu → đặt câu hỏi.
 
 ---
 
-## 8. Cấu trúc Thư mục
+## 8. Cấu hình Hệ thống (Web App)
+
+### Tham số chính (`src/config.py`)
+
+| Tham số | Giá trị | Ý nghĩa |
+| :--- | :---: | :--- |
+| `max_doc_num` | 50 | Số file upload tối đa |
+| `max_page_num` | 100 | Số chunks tối đa mỗi file |
+| `max_context_len` | 3200 | Tổng ký tự context đưa vào generator |
+| `max_model_len` | 4096 | Sequence length tối đa của LLM |
+| `retrieved_doc_num` | 4 | Số chunks retriever trả về (top-k) |
+
+### Yêu cầu GPU
+
+| Tác vụ | GPU tối thiểu | Ghi chú |
+| :--- | :--- | :--- |
+| Chạy demo (full precision) | A100 40GB | Hoặc 2× V100 16GB |
+| Chạy demo (4-bit quantized) | T4 16GB | Dùng BitsAndBytes |
+| Fine-tune Retriever | A100 40GB | ~1 giờ |
+| Fine-tune Generator | A100 40GB | ~6-10 giờ |
+| Evaluation only | T4 16GB | Load generator 4-bit |
+
+---
+
+## 9. Các Thư viện Chính
+
+| Nhóm | Thư viện | Phiên bản | Vai trò |
+| :--- | :--- | :---: | :--- |
+| **Deep Learning** | PyTorch | 2.2.1 | Framework huấn luyện & inference |
+| | Transformers | 4.37.1 | Load & fine-tune LLM (Qwen, Mixtral) |
+| | PEFT | 0.8.2 | LoRA adapter cho Generator |
+| | Accelerate | 0.25.0 | Distributed training & mixed precision |
+| | BitsAndBytes | 0.41.3 | Quantization 4-bit/8-bit |
+| | Flash-Attention | 2.3.5 | Tăng tốc attention mechanism |
+| **Embeddings & Retrieval** | Sentence-Transformers | 2.5.1 | Fine-tune BGE-M3 Retriever |
+| | Faiss (CPU) | 1.8.0 | Vector similarity search |
+| **LLM Serving** | vLLM | — | Serving LLM với PagedAttention |
+| **Web UI** | Gradio | 4.21.0 | Giao diện chatbot |
+| | FastAPI | 0.110.0 | Backend API |
+| | Uvicorn | 0.27.1 | ASGI server |
+| **Xử lý tài liệu** | BeautifulSoup4 | 4.12.3 | Parse HTML |
+| | PyPDF | 4.0.2 | Đọc file PDF |
+| | PDFMiner | 20231228 | Extract text từ PDF |
+| | docx2txt | 0.8 | Đọc file DOCX |
+| **Data & Evaluation** | Datasets (HF) | 2.18.0 | Load dataset từ HuggingFace |
+| | Pandas | 2.2.1 | Xử lý dữ liệu dạng bảng |
+| | NumPy | 1.26.4 | Tính toán số học |
+| | Matplotlib | 3.8.3 | Vẽ biểu đồ kết quả |
+| | Scikit-learn | 1.4.1 | Metrics đánh giá |
+| | NLTK | 3.8.1 | Tokenization cho ROUGE score |
+
+> **Cài đặt**: Xem `environment.yaml` (Conda) hoặc dùng `pip install -r requirements.txt`
+
+---
+
+## 10. Cấu trúc Thư mục
 
 ```
 CS222_TruthReader/
@@ -395,31 +450,7 @@ CS222_TruthReader/
 
 ---
 
-## 9. Cấu hình Hệ thống
-
-### Tham số chính (`src/config.py`)
-
-| Tham số | Giá trị | Ý nghĩa |
-| :--- | :---: | :--- |
-| `max_doc_num` | 50 | Số file upload tối đa |
-| `max_page_num` | 100 | Số chunks tối đa mỗi file |
-| `max_context_len` | 3200 | Tổng ký tự context đưa vào generator |
-| `max_model_len` | 4096 | Sequence length tối đa của LLM |
-| `retrieved_doc_num` | 4 | Số chunks retriever trả về (top-k) |
-
-### Yêu cầu GPU
-
-| Tác vụ | GPU tối thiểu | Ghi chú |
-| :--- | :--- | :--- |
-| Chạy demo (full precision) | A100 40GB | Hoặc 2× V100 16GB |
-| Chạy demo (4-bit quantized) | T4 16GB | Dùng BitsAndBytes |
-| Fine-tune Retriever | A100 40GB | ~1 giờ |
-| Fine-tune Generator | A100 40GB | ~6-10 giờ |
-| Evaluation only | T4 16GB | Load generator 4-bit |
-
----
-
-## 10. Tài liệu Tham khảo
+## 11. Tài liệu Tham khảo
 
 1. Li et al. (2024), *TruthReader: Towards Trustworthy Document Assistant Chatbot with Reliable Attribution*, EMNLP 2024.
 2. Yang et al. (2023), *RefGPT: Dialogue Generation of GPT, by GPT, and for GPT*, EMNLP Findings 2023.
@@ -437,7 +468,7 @@ CS222_TruthReader/
 
 ---
 
-## 11. Citation
+## 12. Citation
 
 ```bibtex
 @inproceedings{li2024truthreader,
@@ -448,8 +479,6 @@ CS222_TruthReader/
   year={2024}
 }
 ```
-
-**Mã nguồn gốc**: [github.com/HITsz-TMG/TruthReader-document-assistant](https://github.com/HITsz-TMG/TruthReader-document-assistant)
 
 **Dataset CORAL**: [github.com/RUC-NLPIR/CORAL](https://github.com/RUC-NLPIR/CORAL)
 
