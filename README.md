@@ -293,14 +293,23 @@ Mở `Reproduce/Eval.ipynb` → chạy tuần tự từ trên xuống.
 
 ## 6. Kết quả Thực nghiệm
 
-### Retriever: So sánh Recall@4
+### Retriever: Hiệu suất truy hồi tổng thể (Recall@k)
 
-| Điều kiện hội thoại | BGE-M3 (gốc, chưa fine-tune) | Author (train trên RefGPT) | Ours (train trên CORAL) |
-| :--- | :---: | :---: | :---: |
-| Không có history | 79.0 | **83.7** | 80.0 |
-| History không liên quan | 78.8 | **80.8** | 29.3* |
-| History liên quan | 89.9 | **93.4** | 77.3 |
-| Cả hai loại history | 90.9 | **92.9** | 66.2 |
+| Metric | BGE-M3 (w/o history) | BGE-M3 (w/ history) | Ours (CORAL) | Author (RefGPT) |
+| :--- | :---: | :---: | :---: | :---: |
+| Recall@1 | 71.3 | 63.8 | 80.0 | **84.3** |
+| Recall@2 | 74.7 | 72.3 | 84.7 | **87.0** |
+| Recall@3 | 78.0 | 75.0 | 86.3 | **88.7** |
+| Recall@4 | 79.0 | 76.7 | 87.3 | **90.0** |
+
+### Retriever: Độ robust theo loại dialogue history (Recall@4)
+
+| Điều kiện hội thoại | BGE-M3 (w/o history) | BGE-M3 (w/ history) | Ours (CORAL) | Author (RefGPT) |
+| :--- | :---: | :---: | :---: | :---: |
+| Không có history | 79.0 | 79.0 | 80.0 | **83.7** |
+| History không liên quan | 77.3 | 29.3 | 78.8 | **80.8** |
+| History liên quan | 77.3 | 73.7 | 89.9 | **93.4** |
+| Cả hai loại history | 77.3 | 66.2 | 90.9 | **92.9** |
 
 *\* CORAL retriever phụ thuộc ngữ cảnh nhiều hơn → nhạy với noise.*
 
